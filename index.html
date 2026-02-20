@@ -45,7 +45,6 @@
         .btn-pay { background: var(--gold); color: black; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
         .overlay-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--black-deep); z-index: 9999; padding: 30px; overflow-y: auto; }
         
-        /* ALERTA DE GANADOR MEJORADA */
         #winnerAlert { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; padding: 25px; border-radius: 20px; z-index: 10000; text-align: center; width: 90%; max-width: 400px; border: 3px solid var(--gold); box-shadow: 0 0 100px rgba(212, 175, 55, 0.6); animation: scaleUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .winner-card-display { margin: 15px auto; width: 220px; pointer-events: none; animation: pulseWin 2s infinite; }
         
@@ -65,7 +64,7 @@
 </head>
 <body>
 
-    <audio id="winSound" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3" preload="auto"></audio>
+    <audio id="ballSound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
 
     <nav>
         <h1>LOTTO PREMIUM</h1>
@@ -154,10 +153,23 @@
         const db = firebase.database();
 
         let vendidos = [], cantados = [], seleccionados = [], nombres = {}, premiosEntregados = {}, intervalCantada = null;
+        let ultimoNumeroRegistrado = null;
         const TASA_ACTUAL = 402.33; 
 
         function lanzarConfeti() {
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#D4AF37', '#ffffff', '#aa8402'] });
+            var duration = 5 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10001 };
+
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
         }
 
         function generarCarton(id) {
@@ -210,6 +222,12 @@
             nombres = data.nombres || {};
             premiosEntregados = data.premios_fin || { line_h: false, line_v: false, esquinas: false, lleno: false };
             
+            // SONIDO AL CAMBIAR EL NÚMERO
+            if (data.ultimo && data.ultimo !== ultimoNumeroRegistrado) {
+                document.getElementById('ballSound').play().catch(()=>{});
+                ultimoNumeroRegistrado = data.ultimo;
+            }
+
             document.getElementById('liveNum').innerText = data.ultimo || '--';
             const poteBase = vendidos.length * 0.5 * TASA_ACTUAL * 0.7;
 
@@ -286,9 +304,6 @@
                     document.getElementById('winnerName').innerText = nombres[id] || "Sin Nombre";
                     crearVisualCarton(id, document.getElementById('winnerCardBox'));
                     document.getElementById('winnerAlert').style.display = 'block';
-                    
-                    // EFECTOS DE SONIDO Y CONFETI
-                    document.getElementById('winSound').play().catch(()=>{});
                     lanzarConfeti();
                 }
             });
