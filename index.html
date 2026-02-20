@@ -11,52 +11,35 @@
         :root { --gold: #D4AF37; --black-deep: #0A0A0A; --black-card: #1A1A1A; --white: #FFFFFF; --alert: #28a745; }
         * { box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background-color: var(--black-deep); color: var(--white); margin: 0; display: flex; min-height: 100vh; flex-direction: row; }
-        
         nav { width: 250px; background: var(--black-deep); padding: 25px; display: flex; flex-direction: column; border-right: 1px solid #333; flex-shrink: 0; }
         nav h1 { font-size: 20px; color: var(--gold); margin-bottom: 30px; font-weight: 800; letter-spacing: 1px; text-align: center; }
         nav a { color: #888; text-decoration: none; padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; display: block; font-size: 14px; transition: 0.3s; border: 1px solid transparent; }
         nav a:hover, nav a.active { background: var(--black-card); color: var(--gold); border: 1px solid var(--gold); }
-
         main { flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 150px; position: relative; width: 100%; }
-        
         .timer-bar { background: #1a1a1a; border: 1px dashed var(--gold); padding: 10px; text-align: center; border-radius: 8px; margin-bottom: 15px; font-size: 13px; }
         #countdown { color: var(--gold); font-weight: 800; }
-
         .info-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .info-box { background: var(--black-card); border: 1px solid #333; padding: 15px; border-radius: 10px; }
         .info-box h3 { color: var(--gold); margin: 0 0 10px 0; font-size: 14px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 5px; }
         .info-box li { margin-bottom: 8px; display: flex; justify-content: space-between; font-size: 13px; color: #ccc; }
         .info-box li b { color: var(--gold); font-weight: 800; }
-        
         .live-draw-banner { background: var(--black-card); border: 2px solid var(--gold); border-radius: 15px; padding: 15px; text-align: center; margin-bottom: 25px; }
         .last-number { font-size: 60px; font-weight: 900; color: var(--gold); display: block; }
-        
         .cartones-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; min-height: 200px; }
         .bingo-card-ui { background: var(--black-card); border-radius: 10px; padding: 10px; border: 1px solid #333; position: relative; cursor: pointer; transition: 0.2s; }
         .bingo-card-ui.selected { border-color: var(--gold); box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); transform: scale(1.02); }
         .bingo-card-ui.sold { opacity: 0.4; cursor: not-allowed; }
-        
         .sold-label { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(212, 175, 55, 0.95); color: #000; display: none; flex-direction: column; justify-content: center; align-items: center; border-radius: 10px; z-index: 20; text-align: center; padding: 5px; pointer-events: none; }
         .bingo-card-ui.sold .sold-label { display: flex; }
-
         .card-header-bingo { display: grid; grid-template-columns: repeat(5, 1fr); text-align: center; font-weight: 900; color: #000; background: var(--gold); padding: 3px 0; border-radius: 4px 4px 0 0; font-size: 12px; }
         .mini-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--gold); padding: 1px; border-radius: 0 0 4px 4px; }
         .mini-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: #fff; color: #000; font-size: 10px; font-weight: 800; }
         .mini-cell.called { background: var(--gold); color: #000; }
-
         .floating-checkout { position: fixed; bottom: 20px; right: 20px; left: 270px; background: var(--black-card); padding: 15px 25px; border-radius: 12px; display: none; justify-content: space-between; align-items: center; border: 1px solid var(--gold); box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 100; }
         .btn-pay { background: var(--gold); color: black; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
-
         .overlay-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--black-deep); z-index: 9999; padding: 30px; overflow-y: auto; }
-        .terms-content { max-width: 800px; margin: 0 auto; line-height: 1.6; color: #ccc; }
-        .terms-content h2 { color: var(--gold); border-bottom: 1px solid var(--gold); padding-bottom: 10px; }
-        .terms-content h4 { color: white; margin-top: 25px; text-transform: uppercase; font-size: 14px; border-left: 3px solid var(--gold); padding-left: 10px; }
-        .terms-content p { font-size: 13px; margin-bottom: 15px; text-align: justify; }
-
         #winnerAlert { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--gold); color: black; padding: 25px; border-radius: 15px; z-index: 10000; text-align: center; width: 85%; max-width: 350px; border: 3px solid white; }
-
         .pagado { color: #ff4d4d !important; font-weight: 800; text-transform: uppercase; }
-
         @media (max-width: 768px) {
             body { flex-direction: column; }
             nav { width: 100%; padding: 10px; border-right: none; border-bottom: 1px solid #333; flex-direction: row; justify-content: space-around; }
@@ -83,7 +66,7 @@
 
         <header>
             <h2 style="margin:0;">Bingo Elite Caracas</h2>
-            <div style="color:var(--gold); font-weight: bold; font-size: 13px; margin-bottom: 15px;">Tasa: 402,33430 Bs | Cartón: $0.50</div>
+            <div style="color:var(--gold); font-weight: bold; font-size: 13px; margin-bottom: 15px;">Tasa: 402.33 Bs | Cartón: $0.50</div>
         </header>
 
         <div class="info-panel">
@@ -101,7 +84,7 @@
                 <ul style="font-size:11px; color:#999;">
                     <li>• El premio crece según ventas.</li>
                     <li>• Sorteo automático (3seg por bola).</li>
-                    <li>• Sorteos: 1:00 PM y 8:00 Pm .</li>
+                    <li>• Sorteos: 1:00 PM y 8:00 PM.</li>
                 </ul>
             </div>
         </div>
@@ -120,17 +103,17 @@
     </main>
 
     <div id="termsPanel" class="overlay-panel">
-        <div class="terms-content">
+        <div style="max-width:800px; margin:0 auto; line-height:1.6; color:#ccc;">
             <button onclick="cerrarTerminos()" style="float:right; background:var(--gold); border:none; padding:10px; cursor:pointer; font-weight:bold; border-radius:5px;">VOLVER</button>
-            <h2>Términos y Condiciones Legales</h2>
+            <h2 style="color:var(--gold)">Términos y Condiciones Legales</h2>
             <h4>1. Naturaleza del Servicio</h4>
-            <p>LottoPremium es una plataforma de juegos de azar recreativa y privada. Al adquirir un cartón, el usuario reconoce que participa de forma voluntaria en un sistema de pote mutuo. El monto de los premios no es fijo, sino que es proporcional a la recaudación total de cartones vendidos y validados para cada sorteo.</p>
+            <p>LottoPremium es una plataforma recreativa. Los premios son proporcionales a la recaudación real.</p>
             <h4>2. Privacidad y Datos</h4>
-            <p>Para garantizar la honestidad del sorteo, el nombre o apodo proporcionado por el comprador será público en la plataforma sobre el cartón adquirido. LottoPremium no solicita datos bancarios, claves ni información sensible. El contacto para pagos y reclamos de premios se realizará exclusivamente a través del WhatsApp oficial vinculado al sistema.</p>
+            <p>Nombres públicos para transparencia. No solicitamos datos bancarios.</p>
             <h4>3. Responsabilidad Técnica</h4>
-            <p>LottoPremium no se hace responsable por fallas de conexión a internet, interrupciones en el servicio eléctrico o errores en los dispositivos de los participantes. El sorteo se ejecuta en el servidor central; por lo tanto, si un usuario se desconecta, su cartón sigue participando y, de resultar ganador, el premio se le reconocerá de igual manera según los registros de nuestra base de datos.</p>
+            <p>No nos responsabilizamos por fallas de internet o luz de los participantes.</p>
             <h4>4. Aceptación</h4>
-            <p>La compra de uno o más cartones implica la lectura, comprensión y aceptación total de estas condiciones. LottoPremium se reserva el derecho de anular cualquier participación que presente indicios de fraude o manipulación técnica.</p>
+            <p>La compra implica la aceptación total de estas condiciones.</p>
         </div>
     </div>
 
@@ -168,7 +151,8 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let vendidos = [], cantados = [], seleccionados = [], nombres = {}, premiosEntregados = {}, intervalCantada = null, esAdmin = false;
+        let vendidos = [], cantados = [], seleccionados = [], nombres = {}, premiosEntregados = {}, intervalCantada = null;
+        const TASA_ACTUAL = 402.33; // Cambiar aquí con PUNTO (.) para decimales
 
         function generarCarton(id) {
             let seed = id * 999;
@@ -210,12 +194,7 @@
             premiosEntregados = data.premios_fin || { line_h: false, line_v: false, esquinas: false, lleno: false };
             
             document.getElementById('liveNum').innerText = data.ultimo || '--';
-            const poteBase = vendidos.length * 0.5 * 402,33430 * 0.7;
-
-            // Pagar el 70% del total recaudado distribuido así:
-            const prizeFull = poteBase * 0.60;
-            const prizeLines = poteBase * 0.15; // 15% para Horiz y 15% para Vert
-            const prizeCorner = poteBase * 0.10;
+            const poteBase = vendidos.length * 0.5 * TASA_ACTUAL * 0.7;
 
             const updateField = (id, amount, status) => {
                 const el = document.getElementById(id);
@@ -223,10 +202,10 @@
                 else { el.innerText = amount.toFixed(2) + " Bs"; el.className = ""; }
             };
 
-            updateField('p-full', prizeFull, premiosEntregados.lleno);
-            updateField('p-horiz', prizeLines, premiosEntregados.line_h);
-            updateField('p-vert', prizeLines, premiosEntregados.line_v);
-            updateField('p-corn', prizeCorner, premiosEntregados.esquinas);
+            updateField('p-full', poteBase * 0.60, premiosEntregados.lleno);
+            updateField('p-horiz', poteBase * 0.15, premiosEntregados.line_h);
+            updateField('p-vert', poteBase * 0.15, premiosEntregados.line_v);
+            updateField('p-corn', poteBase * 0.10, premiosEntregados.esquinas);
 
             for(let i=1; i<=100; i++) {
                 const isV = vendidos.includes(i);
@@ -258,7 +237,7 @@
             if(idx > -1) seleccionados.splice(idx, 1); else seleccionados.push(id);
             const checkout = document.getElementById('checkout');
             checkout.style.display = seleccionados.length > 0 ? 'flex' : 'none';
-            document.getElementById('totalPrice').innerText = (seleccionados.length * 0.5 * 397.22).toFixed(2) + " Bs";
+            document.getElementById('totalPrice').innerText = (seleccionados.length * 0.5 * TASA_ACTUAL).toFixed(2) + " Bs";
         }
 
         function toggleVenta(n) {
@@ -274,18 +253,16 @@
                 for(let c=0; c<5; c++) for(let r=0; r<5; r++) if(c===2&&r===2 || cantados.includes(col[c][r])) m[c][r]=true;
                 
                 let win = false, type = "";
-
                 if(m.flat().filter(x=>x).length === 25) { win=true; type="CARTÓN LLENO"; premiosEntregados.lleno=true; }
                 else if(!premiosEntregados.esquinas && m[0][0]&&m[4][0]&&m[0][4]&&m[4][4]) { win=true; type="CUATRO ESQUINAS"; premiosEntregados.esquinas=true; }
                 else {
-                    if(!premiosEntregados.linea_h) {
-                        for(let r=0; r<5; r++) if(m[0][r]&&m[1][r]&&m[2][r]&&m[3][r]&&m[4][r]) { win=true; type="LÍNEA HORIZONTAL"; premiosEntregados.linea_h=true; break; }
+                    if(!premiosEntregados.line_h) {
+                        for(let r=0; r<5; r++) if(m[0][r]&&m[1][r]&&m[2][r]&&m[3][r]&&m[4][r]) { win=true; type="LÍNEA HORIZONTAL"; premiosEntregados.line_h=true; break; }
                     }
-                    if(!win && !premiosEntregados.linea_v) {
-                        for(let c=0; c<5; c++) if(m[c][0]&&m[c][1]&&m[c][2]&&m[c][3]&&m[c][4]) { win=true; type="LÍNEA VERTICAL"; premiosEntregados.linea_v=true; break; }
+                    if(!win && !premiosEntregados.line_v) {
+                        for(let c=0; c<5; c++) if(m[c][0]&&m[c][1]&&m[c][2]&&m[c][3]&&m[c][4]) { win=true; type="LÍNEA VERTICAL"; premiosEntregados.line_v=true; break; }
                     }
                 }
-
                 if(win) { 
                     detenerCantada(); db.ref('sorteo_vivo/premios_fin').set(premiosEntregados);
                     document.getElementById('winType').innerText = type;
@@ -323,13 +300,13 @@
         }
 
         function enviarWhatsApp() {
-            const t = (seleccionados.length * 0.5 * 402,33430).toFixed(2);
+            const t = (seleccionados.length * 0.5 * TASA_ACTUAL).toFixed(2);
             window.open(`https://wa.me/584122497005?text=Hola, deseo comprar los cartones: ${seleccionados.join(', ')}. Total: ${t} Bs.`);
         }
 
         function detenerCantada() { clearInterval(intervalCantada); intervalCantada = null; }
         function cerrarAlerta() { document.getElementById('winnerAlert').style.display = 'none'; }
-        function abrirAdmin() { if(prompt("Clave:") === "Mia2810") { esAdmin = true; document.getElementById('adminPanel').style.display = 'block'; } }
+        function abrirAdmin() { if(prompt("Clave:") === "Mia2810") { document.getElementById('adminPanel').style.display = 'block'; } }
         function cerrarAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
         function abrirTerminos() { document.getElementById('termsPanel').style.display = 'block'; }
         function cerrarTerminos() { document.getElementById('termsPanel').style.display = 'none'; }
