@@ -113,6 +113,11 @@
             <span class="last-number" id="liveNum">--</span>
         </div>
 
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3 style="margin: 0; color: var(--gold); font-size: 16px;">CARTONES DISPONIBLES</h3>
+            <span style="background: var(--gold); color: black; padding: 4px 10px; border-radius: 20px; font-weight: 800; font-size: 12px;">VENDIDOS: <span id="soldCounter">0</span> / 100</span>
+        </div>
+
         <div class="cartones-container" id="bingoGrid"></div>
 
         <div class="floating-checkout" id="checkout">
@@ -126,15 +131,9 @@
             <button onclick="cerrarTerminos()" style="float:right; background:var(--gold); border:none; padding:10px; cursor:pointer; font-weight:bold; border-radius:5px;">VOLVER</button>
             <h2 style="color:var(--gold)">Términos y Condiciones Legales</h2>
             <h4>1. Naturaleza del Servicio</h4>
-            <p>LottoPremium es una plataforma de juegos de azar recreativa y privada. Al adquirir un cartón, el usuario reconoce que participa de forma voluntaria en un sistema de pote mutuo. El monto de los premios no es fijo, sino que es proporcional a la recaudación total de cartones vendidos y validados para cada sorteo.</p>
+            <p>LottoPremium es una plataforma de juegos de azar recreativa y privada. Al adquirir un cartón, el usuario reconoce que participa de forma voluntaria en un sistema de pote mutuo.</p>
             <h4>2. Transparencia y Protección de Datos</h4>
-            <p>Para garantizar la honestidad del sorteo, el nombre o apodo proporcionado por el comprador será público en la plataforma sobre el cartón adquirido. LottoPremium no solicita datos bancarios, claves ni información sensible. El contacto para pagos y reclamos de premios se realizará exclusivamente a través del WhatsApp oficial vinculado al sistema.</p>
-            <h4>3. Responsabilidad Técnica y Fallas Externas</h4>
-            <p>LottoPremium no se hace responsable por fallas de conexión a internet, interrupciones en el servicio eléctrico o errores en los dispositivos de los participantes. El sorteo se ejecuta en el servidor central; por lo tanto, si un usuario se desconecta, su cartón sigue participando y, de resultar ganador, el premio se le reconocerá de igual manera según los registros de nuestra base de datos.</p>
-            <h4>4. Aceptación</h4>
-            <p>La compra de uno o más cartones implica la lectura, comprensión y aceptación total de estas condiciones. LottoPremium se reserva el derecho de anular cualquier participación que presente indicios de fraude o manipulación técnica.</p>
-            <h4>5. Validación de Pagos</h4>
-            <p>Un cartón solo se considera activo cuando el administrador confirma la recepción del pago y lo marca como "Vendido" en el sistema. Los cartones seleccionados pero no pagados antes de la hora de cierre del sorteo serán liberados sin derecho a reclamo.</p>
+            <p>Para garantizar la honestidad del sorteo, el nombre o apodo proporcionado por el comprador será público en la plataforma sobre el cartón adquirido.</p>
         </div>
     </div>
 
@@ -181,9 +180,7 @@
             var duration = 5 * 1000;
             var animationEnd = Date.now() + duration;
             var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10001 };
-
             function randomInRange(min, max) { return Math.random() * (max - min) + min; }
-
             var interval = setInterval(function() {
                 var timeLeft = animationEnd - Date.now();
                 if (timeLeft <= 0) return clearInterval(interval);
@@ -243,8 +240,11 @@
             nombres = data.nombres || {};
             premiosEntregados = data.premios_fin || { line_h: false, line_v: false, esquinas: false, lleno: false };
             
+            document.getElementById('soldCounter').innerText = vendidos.length;
+
             if (data.ultimo && data.ultimo !== ultimoNumeroRegistrado) {
-                document.getElementById('ballSound').play().catch(()=>{});
+                const sound = document.getElementById('ballSound');
+                if(sound) { sound.currentTime = 0; sound.play().catch(()=>{}); }
                 ultimoNumeroRegistrado = data.ultimo;
             }
 
@@ -274,7 +274,7 @@
                         const col = generarCarton(i);
                         for(let r=0; r<5; r++) for(let c=0; c<5; c++) {
                             let v = (c===2 && r===2) ? 'FREE' : col[c][r];
-                            const cell = document.getElementById(`cell-${idx}-${i}-${v}`);
+                            const cell = document.getElementById('cell-' + idx + '-' + i + '-' + v);
                             if(cell) {
                                 if(v === 'FREE' || cantados.includes(v)) cell.classList.add('called');
                                 else cell.classList.remove('called');
@@ -306,17 +306,12 @@
                 const col = generarCarton(id);
                 let m = Array(5).fill().map(() => Array(5).fill(false));
                 for(let c=0; c<5; c++) for(let r=0; r<5; r++) if(c===2&&r===2 || cantados.includes(col[c][r])) m[c][r]=true;
-                
                 let win = false, type = "";
                 if(m.flat().filter(x=>x).length === 25) { win=true; type="¡BINGO! CARTÓN LLENO"; premiosEntregados.lleno=true; }
                 else if(!premiosEntregados.esquinas && m[0][0]&&m[4][0]&&m[0][4]&&m[4][4]) { win=true; type="¡CUATRO ESQUINAS!"; premiosEntregados.esquinas=true; }
                 else {
-                    if(!premiosEntregados.line_h) {
-                        for(let r=0; r<5; r++) if(m[0][r]&&m[1][r]&&m[2][r]&&m[3][r]&&m[4][r]) { win=true; type="¡LÍNEA HORIZONTAL!"; premiosEntregados.line_h=true; break; }
-                    }
-                    if(!win && !premiosEntregados.line_v) {
-                        for(let c=0; c<5; c++) if(m[c][0]&&m[c][1]&&m[c][2]&&m[c][3]&&m[c][4]) { win=true; type="¡LÍNEA VERTICAL!"; premiosEntregados.line_v=true; break; }
-                    }
+                    if(!premiosEntregados.line_h) for(let r=0; r<5; r++) if(m[0][r]&&m[1][r]&&m[2][r]&&m[3][r]&&m[4][r]) { win=true; type="¡LÍNEA HORIZONTAL!"; premiosEntregados.line_h=true; break; }
+                    if(!win && !premiosEntregados.line_v) for(let c=0; c<5; c++) if(m[c][0]&&m[c][1]&&m[c][2]&&m[c][3]&&m[c][4]) { win=true; type="¡LÍNEA VERTICAL!"; premiosEntregados.line_v=true; break; }
                 }
                 if(win) { 
                     detenerCantada(); db.ref('sorteo_vivo/premios_fin').set(premiosEntregados);
@@ -365,11 +360,8 @@
         function cerrarAlerta() { document.getElementById('winnerAlert').style.display = 'none'; }
         function abrirAdmin() { if(prompt("Clave:") === "Mia2810") { document.getElementById('adminPanel').style.display = 'block'; } }
         function cerrarAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
-        
-        // FUNCIONES DE TERMINOS (AHORA FUNCIONARÁN)
         function abrirTerminos() { document.getElementById('termsPanel').style.display = 'block'; }
         function cerrarTerminos() { document.getElementById('termsPanel').style.display = 'none'; }
-        
         function reiniciarSorteo() { if(confirm("¿Reset?")) db.ref('sorteo_vivo').set({ ultimo: '--', cantados: [], vendidos: [], premios_fin: { line_h: false, line_v: false, esquinas: false, lleno: false }, nombres: {} }); }
         
         dibujarBase();
