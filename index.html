@@ -26,6 +26,7 @@
         .info-box { background: var(--black-card); border: 1px solid #333; padding: 15px; border-radius: 10px; }
         .info-box h3 { color: var(--gold); margin: 0 0 10px 0; font-size: 14px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 5px; }
         .info-box li { margin-bottom: 8px; display: flex; justify-content: space-between; font-size: 13px; color: #ccc; }
+        .info-box li b { color: var(--gold); }
         
         .live-draw-banner { background: var(--black-card); border: 2px solid var(--gold); border-radius: 15px; padding: 15px; text-align: center; margin-bottom: 25px; }
         .last-number { font-size: 60px; font-weight: 900; color: var(--gold); display: block; }
@@ -53,6 +54,8 @@
         .terms-content p { font-size: 13px; margin-bottom: 15px; text-align: justify; }
 
         #winnerAlert { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--gold); color: black; padding: 25px; border-radius: 15px; z-index: 10000; text-align: center; width: 85%; max-width: 350px; border: 3px solid white; }
+
+        .pagado { color: #ff4d4d !important; font-weight: 800; text-transform: uppercase; }
 
         @media (max-width: 768px) {
             body { flex-direction: column; }
@@ -87,8 +90,10 @@
             <div class="info-box">
                 <h3>🏆 Pote Actual</h3>
                 <ul>
-                    <li><span>C. Lleno</span> <b id="prizeFull">0.00 Bs</b></li>
-                    <li><span>Línea / Esq.</span> <b id="prizeLine">0.00 Bs</b></li>
+                    <li><span>Línea Horizontal</span> <b id="prizeHoriz">0.00 Bs</b></li>
+                    <li><span>Línea Vertical</span> <b id="prizeVert">0.00 Bs</b></li>
+                    <li><span>Cuatro Esquinas</span> <b id="prizeCorner">0.00 Bs</b></li>
+                    <li><span>Cartón Lleno</span> <b id="prizeFull">0.00 Bs</b></li>
                 </ul>
             </div>
             <div class="info-box">
@@ -117,18 +122,14 @@
         <div class="terms-content">
             <button onclick="cerrarTerminos()" style="float:right; background:var(--gold); border:none; padding:10px; cursor:pointer; font-weight:bold; border-radius:5px;">VOLVER</button>
             <h2>Términos y Condiciones Legales</h2>
-            
-            <h4>1. Naturaleza del Servicio y Premiación</h4>
-            <p>LottoPremium es una plataforma de ocio. El usuario reconoce que su participación es voluntaria. Los premios finales (70% de la recaudación) dependen del volumen de ventas registrado al momento del sorteo.</p>
-
+            <h4>1. Naturaleza del Servicio</h4>
+            <p>LottoPremium es una plataforma de ocio. Premios proporcionales a recaudación real.</p>
             <h4>2. Privacidad y Datos</h4>
-            <p>Los nombres registrados en los cartones son públicos para garantizar transparencia. LottoPremium NO solicita ni almacena datos bancarios, claves o información financiera sensible.</p>
-
-            <h4>3. Responsabilidad Técnica y Conexión</h4>
-            <p>No nos responsabilizamos por fallas en el servicio de internet del usuario, cortes eléctricos o errores en el dispositivo que impidan ver el sorteo. Los resultados registrados en nuestra base de datos oficial son los únicos válidos.</p>
-
-            <h4>4. Aceptación e Integridad</h4>
-            <p>La compra de cartones implica la aceptación de estos términos. El organizador se reserva el derecho de anular cartones no validados antes del sorteo.</p>
+            <p>Nombres públicos para transparencia. No pedimos datos bancarios.</p>
+            <h4>3. Responsabilidad Técnica</h4>
+            <p>No nos responsabilizamos por internet o luz del usuario.</p>
+            <h4>4. Aceptación</h4>
+            <p>Comprar implica aceptar estos términos. Podemos anular cartones no validados.</p>
         </div>
     </div>
 
@@ -205,11 +206,26 @@
             vendidos = data.vendidos || [];
             cantados = data.cantados || [];
             nombres = data.nombres || {};
-            premiosEntregados = data.premios_fin || { linea: false, esquinas: false, lleno: false };
+            premiosEntregados = data.premios_fin || { linea_h: false, linea_v: false, esquinas: false, lleno: false };
+            
             document.getElementById('liveNum').innerText = data.ultimo || '--';
-            const pote = vendidos.length * 0.5 * 397.22 * 0.7;
-            document.getElementById('prizeFull').innerText = (pote*0.7).toFixed(2) + " Bs";
-            document.getElementById('prizeLine').innerText = (pote*0.15).toFixed(2) + " Bs";
+            const poteBase = vendidos.length * 0.5 * 397.22 * 0.7;
+
+            // Desglose de premios (70% del pote total distribuido)
+            const prizeFull = poteBase * 0.60;
+            const prizeLines = poteBase * 0.15; // 15% para H y 15% para V
+            const prizeCorner = poteBase * 0.10;
+
+            const updateField = (id, amount, status) => {
+                const el = document.getElementById(id);
+                if(status) { el.innerText = "PAGADO"; el.className = "pagado"; }
+                else { el.innerText = amount.toFixed(2) + " Bs"; el.className = ""; }
+            };
+
+            updateField('prizeFull', prizeFull, premiosEntregados.lleno);
+            updateField('prizeHoriz', prizeLines, premiosEntregados.linea_h);
+            updateField('prizeVert', prizeLines, premiosEntregados.linea_v);
+            updateField('prizeCorner', prizeCorner, premiosEntregados.esquinas);
 
             for(let i=1; i<=100; i++) {
                 const isV = vendidos.includes(i);
@@ -239,7 +255,8 @@
             if(vendidos.includes(id)) return;
             const idx = seleccionados.indexOf(id);
             if(idx > -1) seleccionados.splice(idx, 1); else seleccionados.push(id);
-            document.getElementById('checkout').style.display = seleccionados.length > 0 ? 'flex' : 'none';
+            const checkout = document.getElementById('checkout');
+            checkout.style.display = seleccionados.length > 0 ? 'flex' : 'none';
             document.getElementById('totalPrice').innerText = (seleccionados.length * 0.5 * 397.22).toFixed(2) + " Bs";
         }
 
@@ -254,16 +271,27 @@
                 const col = generarCarton(id);
                 let m = Array(5).fill().map(() => Array(5).fill(false));
                 for(let c=0; c<5; c++) for(let r=0; r<5; r++) if(c===2&&r===2 || cantados.includes(col[c][r])) m[c][r]=true;
-                let w = false, t = "";
-                if(m.flat().filter(x=>x).length === 25) { w=true; t="LLENO"; premiosEntregados.lleno=true; }
-                else if(!premiosEntregados.esquinas && m[0][0]&&m[4][0]&&m[0][4]&&m[4][4]) { w=true; t="ESQUINAS"; premiosEntregados.esquinas=true; }
-                else if(!premiosEntregados.linea) {
-                    for(let i=0; i<5; i++) if((m[0][i]&&m[1][i]&&m[2][i]&&m[3][i]&&m[4][i]) || (m[i][0]&&m[i][1]&&m[i][2]&&m[i][3]&&m[i][4])) w=true;
-                    if(w) { t="LÍNEA"; premiosEntregados.linea=true; }
+                
+                let win = false, type = "";
+
+                // Carton Lleno
+                if(m.flat().filter(x=>x).length === 25) { win=true; type="CARTÓN LLENO"; premiosEntregados.lleno=true; }
+                // Esquinas
+                else if(!premiosEntregados.esquinas && m[0][0]&&m[4][0]&&m[0][4]&&m[4][4]) { win=true; type="CUATRO ESQUINAS"; premiosEntregados.esquinas=true; }
+                else {
+                    // Linea Horizontal
+                    if(!premiosEntregados.line_h) {
+                        for(let r=0; r<5; r++) if(m[0][r]&&m[1][r]&&m[2][r]&&m[3][r]&&m[4][r]) { win=true; type="LÍNEA HORIZONTAL"; premiosEntregados.line_h=true; break; }
+                    }
+                    // Linea Vertical
+                    if(!win && !premiosEntregados.line_v) {
+                        for(let c=0; c<5; c++) if(m[c][0]&&m[c][1]&&m[c][2]&&m[c][3]&&m[c][4]) { win=true; type="LÍNEA VERTICAL"; premiosEntregados.line_v=true; break; }
+                    }
                 }
-                if(w) { 
+
+                if(win) { 
                     detenerCantada(); db.ref('sorteo_vivo/premios_fin').set(premiosEntregados);
-                    document.getElementById('winType').innerText = t;
+                    document.getElementById('winType').innerText = type;
                     document.getElementById('winnerNumber').innerText = `#${id}`;
                     document.getElementById('winnerAlert').style.display = 'block';
                 }
@@ -308,7 +336,7 @@
         function cerrarAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
         function abrirTerminos() { document.getElementById('termsPanel').style.display = 'block'; }
         function cerrarTerminos() { document.getElementById('termsPanel').style.display = 'none'; }
-        function reiniciarSorteo() { if(confirm("¿Reset?")) db.ref('sorteo_vivo').set({ ultimo: '--', cantados: [], vendidos: [], premios_fin: { linea: false, esquinas: false, lleno: false }, nombres: {} }); }
+        function reiniciarSorteo() { if(confirm("¿Reset?")) db.ref('sorteo_vivo').set({ ultimo: '--', cantados: [], vendidos: [], premios_fin: { line_h: false, line_v: false, esquinas: false, lleno: false }, nombres: {} }); }
         
         dibujarBase();
         setInterval(updateTimer, 1000);
