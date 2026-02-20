@@ -26,7 +26,7 @@
         .info-box { background: var(--black-card); border: 1px solid #333; padding: 15px; border-radius: 10px; }
         .info-box h3 { color: var(--gold); margin: 0 0 10px 0; font-size: 14px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 5px; }
         .info-box li { margin-bottom: 8px; display: flex; justify-content: space-between; font-size: 13px; color: #ccc; }
-        .info-box li b { color: var(--gold); }
+        .info-box li b { color: var(--gold); font-weight: 800; }
         
         .live-draw-banner { background: var(--black-card); border: 2px solid var(--gold); border-radius: 15px; padding: 15px; text-align: center; margin-bottom: 25px; }
         .last-number { font-size: 60px; font-weight: 900; color: var(--gold); display: block; }
@@ -83,17 +83,17 @@
 
         <header>
             <h2 style="margin:0;">Bingo Elite Caracas</h2>
-            <div style="color:var(--gold); font-weight: bold; font-size: 13px; margin-bottom:15px;">Tasa: 397.22 Bs | Cartón: $0.50</div>
+            <div style="color:var(--gold); font-weight: bold; font-size: 13px; margin-bottom: 15px;">Tasa: 397.22 Bs | Cartón: $0.50</div>
         </header>
 
         <div class="info-panel">
             <div class="info-box">
                 <h3>🏆 Pote Actual</h3>
                 <ul>
-                    <li><span>Línea Horizontal</span> <b id="prizeHoriz">0.00 Bs</b></li>
-                    <li><span>Línea Vertical</span> <b id="prizeVert">0.00 Bs</b></li>
-                    <li><span>Cuatro Esquinas</span> <b id="prizeCorner">0.00 Bs</b></li>
-                    <li><span>Cartón Lleno</span> <b id="prizeFull">0.00 Bs</b></li>
+                    <li><span>Línea Vertical</span> <b id="p-vert">0.00 Bs</b></li>
+                    <li><span>Línea Horizontal</span> <b id="p-horiz">0.00 Bs</b></li>
+                    <li><span>Cuatro Esquinas</span> <b id="p-corn">0.00 Bs</b></li>
+                    <li><span>Cartón Lleno</span> <b id="p-full">0.00 Bs</b></li>
                 </ul>
             </div>
             <div class="info-box">
@@ -206,14 +206,14 @@
             vendidos = data.vendidos || [];
             cantados = data.cantados || [];
             nombres = data.nombres || {};
-            premiosEntregados = data.premios_fin || { linea_h: false, linea_v: false, esquinas: false, lleno: false };
+            premiosEntregados = data.premios_fin || { line_h: false, line_v: false, esquinas: false, lleno: false };
             
             document.getElementById('liveNum').innerText = data.ultimo || '--';
             const poteBase = vendidos.length * 0.5 * 397.22 * 0.7;
 
-            // Desglose de premios (70% del pote total distribuido)
+            // Pagar el 70% del total recaudado distribuido así:
             const prizeFull = poteBase * 0.60;
-            const prizeLines = poteBase * 0.15; // 15% para H y 15% para V
+            const prizeLines = poteBase * 0.15; // 15% para Horiz y 15% para Vert
             const prizeCorner = poteBase * 0.10;
 
             const updateField = (id, amount, status) => {
@@ -222,10 +222,10 @@
                 else { el.innerText = amount.toFixed(2) + " Bs"; el.className = ""; }
             };
 
-            updateField('prizeFull', prizeFull, premiosEntregados.lleno);
-            updateField('prizeHoriz', prizeLines, premiosEntregados.linea_h);
-            updateField('prizeVert', prizeLines, premiosEntregados.linea_v);
-            updateField('prizeCorner', prizeCorner, premiosEntregados.esquinas);
+            updateField('p-full', prizeFull, premiosEntregados.lleno);
+            updateField('p-horiz', prizeLines, premiosEntregados.line_h);
+            updateField('p-vert', prizeLines, premiosEntregados.line_v);
+            updateField('p-corn', prizeCorner, premiosEntregados.esquinas);
 
             for(let i=1; i<=100; i++) {
                 const isV = vendidos.includes(i);
@@ -274,18 +274,14 @@
                 
                 let win = false, type = "";
 
-                // Carton Lleno
                 if(m.flat().filter(x=>x).length === 25) { win=true; type="CARTÓN LLENO"; premiosEntregados.lleno=true; }
-                // Esquinas
                 else if(!premiosEntregados.esquinas && m[0][0]&&m[4][0]&&m[0][4]&&m[4][4]) { win=true; type="CUATRO ESQUINAS"; premiosEntregados.esquinas=true; }
                 else {
-                    // Linea Horizontal
-                    if(!premiosEntregados.line_h) {
-                        for(let r=0; r<5; r++) if(m[0][r]&&m[1][r]&&m[2][r]&&m[3][r]&&m[4][r]) { win=true; type="LÍNEA HORIZONTAL"; premiosEntregados.line_h=true; break; }
+                    if(!premiosEntregados.linea_h) {
+                        for(let r=0; r<5; r++) if(m[0][r]&&m[1][r]&&m[2][r]&&m[3][r]&&m[4][r]) { win=true; type="LÍNEA HORIZONTAL"; premiosEntregados.linea_h=true; break; }
                     }
-                    // Linea Vertical
-                    if(!win && !premiosEntregados.line_v) {
-                        for(let c=0; c<5; c++) if(m[c][0]&&m[c][1]&&m[c][2]&&m[c][3]&&m[c][4]) { win=true; type="LÍNEA VERTICAL"; premiosEntregados.line_v=true; break; }
+                    if(!win && !premiosEntregados.linea_v) {
+                        for(let c=0; c<5; c++) if(m[c][0]&&m[c][1]&&m[c][2]&&m[c][3]&&m[c][4]) { win=true; type="LÍNEA VERTICAL"; premiosEntregados.linea_v=true; break; }
                     }
                 }
 
