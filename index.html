@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LottoPremium | Bingo Elite Caracas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <style>
+        :root { --gold: #D4AF37; --black-deep: #0A0A0A; --black-card: #1A1A1A; --white: #FFFFFF; --alert: #28a745; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--black-deep); color: var(--white); margin: 0; display: flex; min-height: 100vh; flex-direction: row; }
+        
+        nav { width: 250px; background: var(--black-deep); padding: 25px; display: flex; flex-direction: column; border-right: 1px solid #333; flex-shrink: 0; }
+        nav h1 { font-size: 20px; color: var(--gold); margin-bottom: 30px; font-weight: 800; letter-spacing: 1px; text-align: center; }
+        nav a { color: #888; text-decoration: none; padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; display: block; font-size: 14px; transition: 0.3s; border: 1px solid transparent; }
+        nav a:hover, nav a.active { background: var(--black-card); color: var(--gold); border: 1px solid var(--gold); }
+
+        main { flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 150px; position: relative; width: 100%; }
+        
+        .timer-bar { background: #1a1a1a; border: 1px dashed var(--gold); padding: 10px; text-align: center; border-radius: 8px; margin-bottom: 15px; font-size: 13px; }
+        #countdown { color: var(--gold); font-weight: 800; }
+
+        .info-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .info-box { background: var(--black-card); border: 1px solid #333; padding: 15px; border-radius: 10px; }
+        .info-box h3 { color: var(--gold); margin: 0 0 10px 0; font-size: 14px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .info-box li { margin-bottom: 8px; display: flex; justify-content: space-between; font-size: 13px; color: #ccc; }
+        
+        .live-draw-banner { background: var(--black-card); border: 2px solid var(--gold); border-radius: 15px; padding: 15px; text-align: center; margin-bottom: 25px; }
+        .last-number { font-size: 60px; font-weight: 900; color: var(--gold); display: block; }
+        
+        .cartones-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; min-height: 200px; }
+        .bingo-card-ui { background: var(--black-card); border-radius: 10px; padding: 10px; border: 1px solid #333; position: relative; cursor: pointer; transition: 0.2s; }
+        .bingo-card-ui.selected { border-color: var(--gold); box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); transform: scale(1.02); }
+        .bingo-card-ui.sold { opacity: 0.4; cursor: not-allowed; }
+        
+        .sold-label { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(212, 175, 55, 0.95); color: #000; display: none; flex-direction: column; justify-content: center; align-items: center; border-radius: 10px; z-index: 20; text-align: center; padding: 5px; pointer-events: none; }
+        .bingo-card-ui.sold .sold-label { display: flex; }
+
+        .card-header-bingo { display: grid; grid-template-columns: repeat(5, 1fr); text-align: center; font-weight: 900; color: #000; background: var(--gold); padding: 3px 0; border-radius: 4px 4px 0 0; font-size: 12px; }
+        .mini-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--gold); padding: 1px; border-radius: 0 0 4px 4px; }
+        .mini-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: #fff; color: #000; font-size: 10px; font-weight: 800; }
+        .mini-cell.called { background: var(--gold); color: #000; }
+
+        .floating-checkout { position: fixed; bottom: 20px; right: 20px; left: 270px; background: var(--black-card); padding: 15px 25px; border-radius: 12px; display: none; justify-content: space-between; align-items: center; border: 1px solid var(--gold); box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 100; }
+        .btn-pay { background: var(--gold); color: black; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+
+        .overlay-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--black-deep); z-index: 9999; padding: 30px; overflow-y: auto; }
+        .terms-content { max-width: 800px; margin: 0 auto; line-height: 1.6; color: #ccc; }
+        .terms-content h2 { color: var(--gold); border-bottom: 1px solid var(--gold); padding-bottom: 10px; }
+        .terms-content h4 { color: white; margin-top: 25px; text-transform: uppercase; font-size: 14px; border-left: 3px solid var(--gold); padding-left: 10px; }
+        .terms-content p { font-size: 13px; margin-bottom: 15px; text-align: justify; }
+
+        #winnerAlert { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--gold); color: black; padding: 25px; border-radius: 15px; z-index: 10000; text-align: center; width: 85%; max-width: 350px; border: 3px solid white; }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            nav { width: 100%; padding: 10px; border-right: none; border-bottom: 1px solid #333; flex-direction: row; justify-content: space-around; }
+            nav h1 { display: none; }
+            main { padding: 15px; }
+            .floating-checkout { left: 20px; bottom: 10px; }
+            .cartones-container { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <h1>LOTTO PREMIUM</h1>
+        <a class="active" onclick="location.reload()">🏠 Inicio</a>
+        <a onclick="abrirAdmin()">👤 Admin</a>
+        <a onclick="abrirTerminos()">⚖️ Términos</a>
+    </nav>
+
+    <main>
+        <div class="timer-bar">
+            ⏳ PRÓXIMO SORTEO: <span id="nextTime">--:--</span> | CIERRE EN: <span id="countdown">--:--:--</span>
+        </div>
+
+        <header>
+            <h2 style="margin:0;">Bingo Elite Caracas</h2>
+            <div style="color:var(--gold); font-weight: bold; font-size: 13px; margin-bottom:15px;">Tasa: 397.22 Bs | Cartón: $0.50</div>
+        </header>
+
+        <div class="info-panel">
+            <div class="info-box">
+                <h3>🏆 Pote Actual</h3>
+                <ul>
+                    <li><span>C. Lleno</span> <b id="prizeFull">0.00 Bs</b></li>
+                    <li><span>Línea / Esq.</span> <b id="prizeLine">0.00 Bs</b></li>
+                </ul>
+            </div>
+            <div class="info-box">
+                <h3>📜 Reglas</h3>
+                <ul style="font-size:11px; color:#999;">
+                    <li>• El premio crece según ventas.</li>
+                    <li>• Sorteo automático (3s/bola).</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="live-draw-banner">
+            <small style="color: var(--gold); font-weight:800; font-size:10px;">ÚLTIMA BOLA</small>
+            <span class="last-number" id="liveNum">--</span>
+        </div>
+
+        <div class="cartones-container" id="bingoGrid"></div>
+
+        <div class="floating-checkout" id="checkout">
+            <div style="font-size: 13px;">Total: <span id="totalPrice" style="color:var(--gold); font-weight:800; font-size:18px;">0.00 Bs</span></div>
+            <button class="btn-pay" onclick="enviarWhatsApp()">PAGAR WHATSAPP</button>
+        </div>
+    </main>
+
+    <div id="termsPanel" class="overlay-panel">
+        <div class="terms-content">
+            <button onclick="cerrarTerminos()" style="float:right; background:var(--gold); border:none; padding:10px; cursor:pointer; font-weight:bold; border-radius:5px;">VOLVER</button>
+            <h2>Términos y Condiciones Legales</h2>
+            
+            <h4>1. Naturaleza del Servicio y Premiación</h4>
+            <p>LottoPremium es una plataforma de ocio. El usuario reconoce que su participación es voluntaria. Los premios finales (70% de la recaudación) dependen del volumen de ventas registrado al momento del sorteo.</p>
+
+            <h4>2. Privacidad y Datos</h4>
+            <p>Los nombres registrados en los cartones son públicos para garantizar transparencia. LottoPremium NO solicita ni almacena datos bancarios, claves o información financiera sensible.</p>
+
+            <h4>3. Responsabilidad Técnica y Conexión</h4>
+            <p>No nos responsabilizamos por fallas en el servicio de internet del usuario, cortes eléctricos o errores en el dispositivo que impidan ver el sorteo. Los resultados registrados en nuestra base de datos oficial son los únicos válidos.</p>
+
+            <h4>4. Aceptación e Integridad</h4>
+            <p>La compra de cartones implica la aceptación de estos términos. El organizador se reserva el derecho de anular cartones no validados antes del sorteo.</p>
+        </div>
+    </div>
+
+    <div id="adminPanel" class="overlay-panel">
+        <h2 style="color:var(--gold)">ADMINISTRACIÓN</h2>
+        <div style="background:var(--black-card); padding:20px; border-radius:10px; margin-bottom:20px; border:1px solid #333;">
+            <input type="number" id="cartonInput" style="padding:10px; width:70px; background:#222; color:white; border:1px solid var(--gold);" placeholder="#">
+            <button onclick="venderPorInput()" style="background:var(--gold); padding:10px; font-weight:bold; cursor:pointer;">VENDER</button>
+            <div style="margin-top:20px; display:flex; gap:10px;">
+                <button onclick="iniciarCantadaAuto()" style="background:var(--gold); border:none; padding:10px; border-radius:5px; flex:1; font-weight:bold;">▶️ INICIO</button>
+                <button onclick="detenerCantada()" style="background:#ef4444; border:none; padding:10px; border-radius:5px; flex:1; color:white;">⏹️ PARAR</button>
+                <button onclick="reiniciarSorteo()" style="background:#444; border:none; padding:10px; border-radius:5px; flex:1; color:white;">🔄 RESET</button>
+            </div>
+        </div>
+        <button onclick="cerrarAdmin()" style="color:white; background:none; border:1px solid #555; padding:10px;">SALIR</button>
+        <div class="cartones-container" id="adminGrid" style="margin-top:30px;"></div>
+    </div>
+
+    <div id="winnerAlert">
+        <h1 id="winType" style="font-size: 24px;">¡BINGO!</h1>
+        <h2 id="winnerNumber" style="font-size: 30px;">#00</h2>
+        <button onclick="cerrarAlerta()" style="width:100%; padding: 12px; font-weight: bold; background: black; color: white; border-radius: 8px;">OK</button>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAlY5Yi5XE5x3HXLrvshu20KQCL-ZcgwFI",
+            authDomain: "lottoccs-6b47e.firebaseapp.com",
+            databaseURL: "https://lottoccs-6b47e-default-rtdb.firebaseio.com",
+            projectId: "lottoccs-6b47e",
+            storageBucket: "lottoccs-6b47e.firebasestorage.app",
+            messagingSenderId: "181300025034",
+            appId: "1:181300025034:web:33810a14bf47ca9615c633"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let vendidos = [], cantados = [], seleccionados = [], nombres = {}, premiosEntregados = {}, intervalCantada = null, esAdmin = false;
+
+        function generarCarton(id) {
+            let seed = id * 999;
+            const rng = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+            const getCol = (min, max) => {
+                let col = []; while(col.length < 5) { let n = Math.floor(rng() * (max - min + 1)) + min; if(!col.includes(n)) col.push(n); }
+                return col.sort((a,b) => a-b);
+            };
+            return [ getCol(1,15), getCol(16,30), getCol(31,45), getCol(46,60), getCol(61,75) ];
+        }
+
+        function dibujarBase() {
+            const grids = [document.getElementById('bingoGrid'), document.getElementById('adminGrid')];
+            grids.forEach((grid, idx) => {
+                if(!grid) return;
+                grid.innerHTML = '';
+                for(let i=1; i<=100; i++) {
+                    const col = generarCarton(i);
+                    const card = document.createElement('div');
+                    card.id = `card-${idx}-${i}`;
+                    card.className = 'bingo-card-ui';
+                    let cells = '';
+                    for(let r=0; r<5; r++) for(let c=0; c<5; c++) {
+                        let v = (c===2 && r===2) ? 'FREE' : col[c][r];
+                        cells += `<div class="mini-cell" id="cell-${idx}-${i}-${v}">${v}</div>`;
+                    }
+                    card.innerHTML = `<div class="sold-label"><b>VENDIDO</b><span id="name-${idx}-${i}"></span></div><div style="font-size:9px; font-weight:bold;">#${i}</div><div class="card-header-bingo"><span>B</span><span>I</span><span>N</span><span>G</span><span>O</span></div><div class="mini-grid">${cells}</div>`;
+                    card.onclick = () => { if(idx === 1) toggleVenta(i); else toggleSeleccion(i); };
+                    grid.appendChild(card);
+                }
+            });
+        }
+
+        db.ref('sorteo_vivo').on('value', (snap) => {
+            const data = snap.val() || {};
+            vendidos = data.vendidos || [];
+            cantados = data.cantados || [];
+            nombres = data.nombres || {};
+            premiosEntregados = data.premios_fin || { linea: false, esquinas: false, lleno: false };
+            document.getElementById('liveNum').innerText = data.ultimo || '--';
+            const pote = vendidos.length * 0.5 * 397.22 * 0.7;
+            document.getElementById('prizeFull').innerText = (pote*0.7).toFixed(2) + " Bs";
+            document.getElementById('prizeLine').innerText = (pote*0.15).toFixed(2) + " Bs";
+
+            for(let i=1; i<=100; i++) {
+                const isV = vendidos.includes(i);
+                const isS = seleccionados.includes(i);
+                [0, 1].forEach(idx => {
+                    const card = document.getElementById(`card-${idx}-${i}`);
+                    if(card) {
+                        card.className = `bingo-card-ui ${isV ? 'sold' : ''} ${isS && idx === 0 ? 'selected' : ''}`;
+                        const nameSpan = document.getElementById(`name-${idx}-${i}`);
+                        if(nameSpan) nameSpan.innerText = nombres[i] || "";
+                        const col = generarCarton(i);
+                        for(let r=0; r<5; r++) for(let c=0; c<5; c++) {
+                            let v = (c===2 && r===2) ? 'FREE' : col[c][r];
+                            const cell = document.getElementById(`cell-${idx}-${i}-${v}`);
+                            if(cell) {
+                                if(v === 'FREE' || cantados.includes(v)) cell.classList.add('called');
+                                else cell.classList.remove('called');
+                            }
+                        }
+                    }
+                });
+            }
+            verificarWin();
+        });
+
+        function toggleSeleccion(id) {
+            if(vendidos.includes(id)) return;
+            const idx = seleccionados.indexOf(id);
+            if(idx > -1) seleccionados.splice(idx, 1); else seleccionados.push(id);
+            document.getElementById('checkout').style.display = seleccionados.length > 0 ? 'flex' : 'none';
+            document.getElementById('totalPrice').innerText = (seleccionados.length * 0.5 * 397.22).toFixed(2) + " Bs";
+        }
+
+        function toggleVenta(n) {
+            if(vendidos.includes(n)) { if(confirm("¿Liberar?")) { db.ref(`sorteo_vivo/nombres/${n}`).remove(); db.ref('sorteo_vivo/vendidos').set(vendidos.filter(x => x!==n)); } }
+            else { let nom = prompt("Nombre:"); if(nom) { db.ref(`sorteo_vivo/nombres/${n}`).set(nom); db.ref('sorteo_vivo/vendidos').set([...vendidos, n]); } }
+        }
+
+        function verificarWin() {
+            if (cantados.length < 4 || premiosEntregados.lleno) return;
+            vendidos.forEach(id => {
+                const col = generarCarton(id);
+                let m = Array(5).fill().map(() => Array(5).fill(false));
+                for(let c=0; c<5; c++) for(let r=0; r<5; r++) if(c===2&&r===2 || cantados.includes(col[c][r])) m[c][r]=true;
+                let w = false, t = "";
+                if(m.flat().filter(x=>x).length === 25) { w=true; t="LLENO"; premiosEntregados.lleno=true; }
+                else if(!premiosEntregados.esquinas && m[0][0]&&m[4][0]&&m[0][4]&&m[4][4]) { w=true; t="ESQUINAS"; premiosEntregados.esquinas=true; }
+                else if(!premiosEntregados.linea) {
+                    for(let i=0; i<5; i++) if((m[0][i]&&m[1][i]&&m[2][i]&&m[3][i]&&m[4][i]) || (m[i][0]&&m[i][1]&&m[i][2]&&m[i][3]&&m[i][4])) w=true;
+                    if(w) { t="LÍNEA"; premiosEntregados.linea=true; }
+                }
+                if(w) { 
+                    detenerCantada(); db.ref('sorteo_vivo/premios_fin').set(premiosEntregados);
+                    document.getElementById('winType').innerText = t;
+                    document.getElementById('winnerNumber').innerText = `#${id}`;
+                    document.getElementById('winnerAlert').style.display = 'block';
+                }
+            });
+        }
+
+        function iniciarCantadaAuto() {
+            if(intervalCantada) return;
+            intervalCantada = setInterval(() => {
+                let bolsa = []; for(let i=1; i<=75; i++) if(!cantados.includes(i)) bolsa.push(i);
+                if(bolsa.length === 0) return detenerCantada();
+                let b = bolsa[Math.floor(Math.random() * bolsa.length)];
+                cantados.push(b); db.ref('sorteo_vivo').update({ ultimo: b, cantados: cantados });
+            }, 3000);
+        }
+
+        function updateTimer() {
+            const now = new Date(), target = new Date();
+            if (now.getHours() < 13) target.setHours(13,0,0,0);
+            else if (now.getHours() < 20) target.setHours(20,0,0,0);
+            else { target.setDate(target.getDate()+1); target.setHours(13,0,0,0); }
+            const diff = target - now;
+            const hh = Math.floor(diff/3600000), mm = Math.floor((diff%3600000)/60000), ss = Math.floor((diff%60000)/1000);
+            document.getElementById('nextTime').innerText = target.getHours() === 13 ? "1:00 PM" : "8:00 PM";
+            document.getElementById('countdown').innerText = `${hh}h ${mm}m ${ss}s`;
+        }
+
+        function venderPorInput() {
+            const v = parseInt(document.getElementById('cartonInput').value);
+            if(v >= 1 && v <= 100 && !vendidos.includes(v)) toggleVenta(v);
+            document.getElementById('cartonInput').value = '';
+        }
+
+        function enviarWhatsApp() {
+            const t = (seleccionados.length * 0.5 * 397.22).toFixed(2);
+            window.open(`https://wa.me/584122497005?text=Hola, deseo comprar los cartones: ${seleccionados.join(', ')}. Total: ${t} Bs.`);
+        }
+
+        function detenerCantada() { clearInterval(intervalCantada); intervalCantada = null; }
+        function cerrarAlerta() { document.getElementById('winnerAlert').style.display = 'none'; }
+        function abrirAdmin() { if(prompt("Clave:") === "Mia2810") { esAdmin = true; document.getElementById('adminPanel').style.display = 'block'; } }
+        function cerrarAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
+        function abrirTerminos() { document.getElementById('termsPanel').style.display = 'block'; }
+        function cerrarTerminos() { document.getElementById('termsPanel').style.display = 'none'; }
+        function reiniciarSorteo() { if(confirm("¿Reset?")) db.ref('sorteo_vivo').set({ ultimo: '--', cantados: [], vendidos: [], premios_fin: { linea: false, esquinas: false, lleno: false }, nombres: {} }); }
+        
+        dibujarBase();
+        setInterval(updateTimer, 1000);
+        updateTimer();
+    </script>
+</body>
+</html>
