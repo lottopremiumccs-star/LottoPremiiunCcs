@@ -210,7 +210,7 @@
             premiosEntregados = data.premios_fin || { line_h: false, line_v: false, esquinas: false, lleno: false };
             
             document.getElementById('liveNum').innerText = data.ultimo || '--';
-            const poteBase = vendidos.length * 0.5 * 397.22 * 0.7;
+            const poteBase = vendidos.length * 0.5 * 402,33430 * 0.7;
 
             // Pagar el 70% del total recaudado distribuido así:
             const prizeFull = poteBase * 0.60;
@@ -323,7 +323,7 @@
         }
 
         function enviarWhatsApp() {
-            const t = (seleccionados.length * 0.5 * 397.22).toFixed(2);
+            const t = (seleccionados.length * 0.5 * 402,33430).toFixed(2);
             window.open(`https://wa.me/584122497005?text=Hola, deseo comprar los cartones: ${seleccionados.join(', ')}. Total: ${t} Bs.`);
         }
 
