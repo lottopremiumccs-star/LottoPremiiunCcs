@@ -97,7 +97,7 @@
                 <h3>📜 Reglas</h3>
                 <ul style="font-size:11px; color:#999;">
                     <li>• El premio crece según ventas.</li>
-                    <li>• Sorteo automático (3seg por número).</li>
+                    <li>• Sorteo automático (5 seg por número).</li>
                     <li>• Sorteos: 1:00 PM y 8:00 PM.</li>
                     <li>• 50 cartones vendidos mínimo para activar sorteo.</li>
                     <li>• De no llegar a los 50 cartones en un sorteo quedan acumulados para el sorteo siguiente.</li>
@@ -338,7 +338,7 @@
                 if(bolsa.length === 0) return detenerCantada();
                 let b = bolsa[Math.floor(Math.random() * bolsa.length)];
                 cantados.push(b); db.ref('sorteo_vivo').update({ ultimo: b, cantados: cantados });
-            }, 3000);
+            }, 5000);
         }
 
         function updateTimer() {
